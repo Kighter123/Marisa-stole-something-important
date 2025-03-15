@@ -1,10 +1,14 @@
 #include "Obstacle.h"
 
-Obstacle::Obstacle(QWidget *parent, int x, int y) : x(x), y(y), parent(parent) {}
+Obstacle::Obstacle(QWidget *parent, int x, int y,int type) : x(x), y(y),type(type), parent(parent)
+{
+    chair.load(":/chair.png");
+    table.load(":/table.png");
+}
 
 void Obstacle::draw(QPainter *painter) {
-    painter->setBrush(Qt::red);
-    painter->drawRect(x, y, width, height);
+
+    painter->drawImage(QRect(x, y, exWidth, exHeight),type?chair:table);
 }
 
 void Obstacle::moveDown() {

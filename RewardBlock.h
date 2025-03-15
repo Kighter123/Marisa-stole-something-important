@@ -5,6 +5,7 @@
 #include <QPainter>
 #include <QRandomGenerator>
 
+
 class RewardBlock {
 public:
     RewardBlock(int windowWidth, int windowHeight); // 构造函数
@@ -19,6 +20,7 @@ private:
     int windowHeight;     // 窗口高度
     QRect rect;           // 奖励方块的矩形区域
     bool active;          // 奖励方块是否激活
+    QImage magicBook;
 };
 
 #endif // REWARDBLOCK_H

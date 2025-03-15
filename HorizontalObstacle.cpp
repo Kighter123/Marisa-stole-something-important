@@ -1,10 +1,12 @@
 #include "HorizontalObstacle.h"
 
-HorizontalObstacle::HorizontalObstacle(int y, float speed) : x(-30), y(y), speed(speed) {}
+HorizontalObstacle::HorizontalObstacle(int y, float speed) : x(-30), y(y), speed(speed) {
+    magicBall.load(":/magicBall.png");
+}
 
 void HorizontalObstacle::draw(QPainter *painter) {
-    painter->setBrush(Qt::yellow);  // 用黄色区分横向障碍物
-    painter->drawRect(x, y, width, height);//实时位置绘制
+
+    painter->drawImage(QRect(x, y, exWidth, exHeight),magicBall);//实时位置绘制
 }
 
 void HorizontalObstacle::moveRight() {

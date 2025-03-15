@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/new/prefix1"/>
+    <qresource prefix="/">
+        <file>player1.png</file>
+        <file>player2.png</file>
+        <file>glide0.png</file>
+        <file>magicBook.png</file>
+        <file>Library.jpg</file>
+        <file>wood.png</file>
+        <file>chair.png</file>
+        <file>magicBall.png</file>
+        <file>table.png</file>
+    </qresource>
+</RCC>

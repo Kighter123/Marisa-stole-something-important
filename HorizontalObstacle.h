@@ -14,9 +14,12 @@ public:
 private:
     int x, y;
     float speed;//可进行难度递进
+    const int exWidth=35;
+    const int exHeight=35;
     static const int horiObstacleSize=25;//大小方便维护
     static const int width = horiObstacleSize;
     static const int height = horiObstacleSize;
+    QImage magicBall;
 };
 
 #endif

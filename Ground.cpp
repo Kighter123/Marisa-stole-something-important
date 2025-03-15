@@ -4,13 +4,16 @@
 Ground::Ground(int windowWidth, int windowHeight) ://初始化窗口尺寸并生成随机突起
     windowWidth(windowWidth), windowHeight(windowHeight) {
     generateBumps();
+    groundImage.load(":/wood.png");
+
+
 }
 
 void Ground::draw(QPainter *painter) {
-    painter->setBrush(QColorConstants::Svg::brown);
-    painter->drawRect(0, windowHeight - 10, windowWidth, 10);//绘制底部，高度10像素
+
+    painter->drawImage(QRect(0, windowHeight - 10, windowWidth, 10),groundImage);//绘制底部，高度10像素
     for (const QRect &bump : bumps) {
-        painter->drawRect(bump);
+        painter->drawImage(QRect(bump),groundImage);
     }
 }
 

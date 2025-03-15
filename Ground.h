@@ -5,6 +5,7 @@
 #include <QRect>
 #include <QPainter>
 
+
 //游戏中的静态地面类，有地面直线与随机矩形突起
 class Ground {
 public:
@@ -17,6 +18,9 @@ private:
     int windowHeight;
     QVector<QRect> bumps;  // 矩形突起列表
     void generateBumps();//生成随机矩形突起
+    QImage groundImage;
+
+
 };
 
 #endif

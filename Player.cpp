@@ -1,8 +1,12 @@
 #include "Player.h"
 #include "Ground.h"
 
+const float Player::maxGlideEnergy = 300.0f;
+const float Player::glideEnergyConsumption = 1.0f;
+
 Player::Player(int windowWidth,int lifeCount)
-    :lifeCount(lifeCount),
+    :faceSide(1),
+    lifeCount(lifeCount),
     x(580), y(700),
     windowWidth(windowWidth),
     gravity(0.6f),
@@ -10,9 +14,16 @@ Player::Player(int windowWidth,int lifeCount)
     velocityY(0.0f),
     isJumping(false),
     groundY(700),
+    isGliding(false),
     invincible(false),//初始为非无敌状态
-    invincibleEndTime(0)
-{}  // 初始位置为新窗口的中下部
+    invincibleEndTime(0),
+    checkKeyPressed(false),
+    glideEnergy(maxGlideEnergy){
+    playerImage1.load(":/player1.png");
+    playerImage0.load(":/player2.png");
+    glideImage.load(":/glide0.png");
+
+}
 
 void Player::activateInvincibility() {//激活无敌状态，在被攻击或吃到奖励方块后触发
     invincible = true;
@@ -23,15 +34,34 @@ bool Player::isInvincible() const {//布尔型，判断是否为无敌状态
     return invincible && (QDateTime::currentMSecsSinceEpoch() < invincibleEndTime);
 }
 
-void Player::draw(QPainter *painter) {
-    if (isInvincible()) {
-        painter->setBrush(Qt::black);  // 无敌状态下显示为黑色
-    } else {
-        painter->setBrush(Qt::blue);    // 正常状态下显示为蓝色
+void Player::startGlide() {
+    if (isJumping && glideEnergy > 0) {
+        isGliding = true;
     }
-    painter->drawRect(x, y, width, height);
+}
+void Player::stopGlide() {
+    isGliding = false;
 }
 
+void Player::draw(QPainter *painter) {
+    if (isInvincible()) {
+        painter->setOpacity(0.5);  // 无敌状态下半透明
+    }
+    faceSideChange();
+    if (isGliding) {
+        painter->drawImage(QRect(x, y, width, height), !faceSide ? glideImage : glideImage.mirrored(true, false));
+    } else {
+        painter->drawImage(QRect(x, y, width, height), faceSide ? playerImage1 : playerImage0);
+    }
+    painter->setOpacity(1.0);  // 恢复不透明度
+    painter->setBrush(Qt::yellow);
+    painter->drawRect(x+23, y+26, realWidth, realHeight);
+}
+
+void Player::faceSideChange(){
+    if(faceSide==0){if(velocityX>0)faceSide=1;}
+    if(faceSide==1){if(velocityX<0)faceSide=0;}
+}
 
 void Player::move(int dx) {//将速度转化为每帧移动的距离
     velocityX = dx;
@@ -39,18 +69,21 @@ void Player::move(int dx) {//将速度转化为每帧移动的距离
 
 void Player::jump() {//跳跃函数，允许二段跳
     if (!isJumping) {
-        velocityY = -13.0f;
+        velocityY = -14.0f;
         isJumping = true;
     }
     else{
         if (!doubleJumping) {
-            velocityY = -13.0f;
+            velocityY = -14.0f;
             doubleJumping = true;
         }
     }
 }
 
-
+void Player::scoreSkill(int& score){
+    if(score>100){score-=100;
+        activateInvincibility();}
+}
 
 void Player::lifeDown(){//生命减少函数
     lifeCount--;
@@ -58,6 +91,16 @@ void Player::lifeDown(){//生命减少函数
 
 int Player::getLife(){
     return lifeCount;//实时获取生命值
+}
+
+int Player::getEnergy(){
+    return glideEnergy;
+}
+
+void Player::addGlideEnergy(){
+    glideEnergy+=80.0f;
+    if(glideEnergy>maxGlideEnergy)glideEnergy=maxGlideEnergy;
+
 }
 
 void Player::update(const Ground *ground) {//角色状态更新函数（核心）
@@ -99,7 +142,18 @@ void Player::update(const Ground *ground) {//角色状态更新函数（核心�
 
     //下降过程模拟自由落体
     y += velocityY;
-    velocityY += gravity;
+    if (isGliding && glideEnergy > 0) {
+        if(velocityY>-5) velocityY += gravity * 1 / 5;
+        else if (velocityY<5){velocityY += gravity;}
+
+        glideEnergy -= glideEnergyConsumption;
+        if (glideEnergy < 0) {
+            glideEnergy = 0;
+            stopGlide();
+        }
+    } else {
+        velocityY += (abs(velocityY) <= 5) ? gravity * 3 / 4 : gravity;
+    }
 
     //落地判定，同时结束跳跃及二段跳状态
     if (y + height >= currentHeight) {
@@ -107,9 +161,13 @@ void Player::update(const Ground *ground) {//角色状态更新函数（核心�
         velocityY = 0.0f;
         isJumping = false;
         doubleJumping=false;
+        isGliding=false;
     }
 }
 //角色与障碍物的接触判定
 QRect Player::rect() const {
+    return QRect(x+23, y+26, realWidth, realHeight);
+}
+QRect Player::rectWithRewardBlock() const {
     return QRect(x, y, width, height);
 }
